@@ -1,6 +1,5 @@
 // Farhan Noor - raytracer basics
 #include "stdafx.h"
-
 #include <float.h>
 #include "hitTableList.h"
 #include "sphereObj.h"
@@ -9,15 +8,6 @@
 #include <iostream>
 #include <fstream>
 
-
-//vec3 aoPoints() {
-//	vec3 point;
-//	do {
-//		point = 2.0 * vec3(rand() / (double)RAND_MAX, rand() / (double)RAND_MAX, rand() / (double)RAND_MAX) - vec3(1, 1, 1);
-//	} while ( point.squared_length() >= 1.0 );
-//
-//	return point;
-//}
 
 
 vec3 color(const ray& r, hitable *world, int depth) {
@@ -51,7 +41,7 @@ int main() {
 	
 	int nX = 2000;
 	int nY = 1000;
-	int samples = 32;
+	int samples = 64;
 	int aspRatio = nX / nY;
 
 	testFile << "P3\n" << nX << " " << nY << "\n255\n";
@@ -77,11 +67,17 @@ int main() {
 
 	//small lambert spheres
 	list[5] = new sphere(vec3(-0.2, -0.4, -0.2), 0.1, new lambert(vec3(1.0, 0.0, 1.0)));
-	list[6] = new sphere(vec3(-0.6, -0.2, -0.2), 0.3, new lambert(vec3(0.2, 0.6, 1.0)));
+	list[6] = new sphere(vec3(-0.6, -0.2, -0.2), 0.3, new metal(vec3(0.2, 0.6, 1.0), 0.2));
 
 	hitable *world = new hitable_list(list, 7);
 	
-	camera mainCam(vec3(3,0.2,3),vec3(0,0,-1), vec3(0,1,0),35, float(nX)/float(nY));
+	vec3 lookFrom(3, 0.2, 3);
+	vec3 lookAt(0, 0, -1);
+
+	float distanceFocus = (lookFrom - lookAt).length();
+	float aperture = 0.1;
+
+	camera mainCam(lookFrom,lookAt, vec3(0,1,0), 30, float(nX)/float(nY), aperture, distanceFocus);
 	
 	for (int j = nY - 1; j >= 0; j--) {
 		
