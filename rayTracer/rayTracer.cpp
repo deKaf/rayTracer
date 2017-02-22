@@ -51,19 +51,19 @@ int main() {
 	
 	int nX = 2000;
 	int nY = 1000;
-	int samples = 64;
+	int samples = 32;
 	int aspRatio = nX / nY;
 
 	testFile << "P3\n" << nX << " " << nY << "\n255\n";
 
 	//camera//
-	vec3 lowerLeftCorner = vec3(-(2 * aspRatio), -(aspRatio), -1.0);
-	vec3 horizontal = vec3((4 * aspRatio), 0.0, 0.0);
-	vec3 vertical = vec3(0.0, (2 * aspRatio), 0.0);
-	vec3 origin = vec3(0.0, 0.0, 0.0);
+	//vec3 lowerLeftCorner = vec3(-(2 * aspRatio), -(aspRatio), -1.0);
+	//vec3 horizontal = vec3((4 * aspRatio), 0.0, 0.0);
+	//vec3 vertical = vec3(0.0, (2 * aspRatio), 0.0);
+	//vec3 origin = vec3(0.0, 0.0, 0.0);
 
 	//set list of objects
-	hitable *list[4];
+	hitable *list[7];
 	
 	//lambert spheres
 	list[0] = new sphere(vec3(0, 0, -1), 0.5, new lambert(vec3(0.0, 0.25, 0.65)) );
@@ -71,11 +71,17 @@ int main() {
 	
 	//metal sphere
 	list[2] = new sphere(vec3(-1.25, 0, -1), 0.5, new metal(vec3(0.35, 1.0, 0.0), 0.05) );
-	list[3] = new sphere(vec3(1.25, -0.15, -1), 0.25, new metal(vec3(0.35, 1.0, 0.0), 0.25));
+	//glass sphere
+	list[3] = new sphere(vec3(1, 0, -1), 0.5, new dielectric(1.5));
+	list[4] = new sphere(vec3(1, 0, -1), -0.49, new dielectric(1.5));
 
-	hitable *world = new hitable_list(list, 4);
+	//small lambert spheres
+	list[5] = new sphere(vec3(-0.2, -0.4, -0.2), 0.1, new lambert(vec3(1.0, 0.0, 1.0)));
+	list[6] = new sphere(vec3(-0.6, -0.2, -0.2), 0.3, new lambert(vec3(0.2, 0.6, 1.0)));
+
+	hitable *world = new hitable_list(list, 7);
 	
-	//camera mainCam;
+	camera mainCam(vec3(3,0.2,3),vec3(0,0,-1), vec3(0,1,0),35, float(nX)/float(nY));
 	
 	for (int j = nY - 1; j >= 0; j--) {
 		
@@ -89,8 +95,8 @@ int main() {
 				float randomNumY = rand() / (RAND_MAX+1.0);
 				float u = float(i+randomNumX) / float(nX);
 				float v = float(j+randomNumY) / float(nY);
-				//ray r (mainCam.getRay(u, v));
-				ray r(origin, lowerLeftCorner + u*horizontal + v*vertical - origin);
+				ray r (mainCam.getRay(u, v));
+				//ray r(origin, lowerLeftCorner + u*horizontal + v*vertical - origin);
 				col += color(r, world,0);
 			}
 
